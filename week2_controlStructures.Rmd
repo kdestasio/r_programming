@@ -1,0 +1,137 @@
+---
+title: "R Programming Week 2, Control Structures"
+author: "Krista DeStasio"
+date: "12/26/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c("datasets")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(datasets)
+```
+# CONTROL STRUCTURES
+__________________________
+## Introduction
+Control structures in R allow you to control the flow of execution of the program, depending on the runtime conditions. Common structures are:
+
+- **if, else**: testing a condition
+- **for**: execute a loop a fixed number of times
+- **while**: execute a loop a fixed number of times
+- **repeat**: execute an infinite loop
+- **break**: break the exeecution of a loop
+- **next**: skip an iteration of a loop
+- **return**: exit a function
+
+Most control structures are not used in interactive sessions, but rather when writing functions or longer expressions.
+
+## if-else
+This structure allows for dependencies in a function.  
+There can be any number of *if-else* constructs.  
+There are a couple different ways to construct the *if-else* construct.  
+```{r, eval=FALSE}
+# This is a valid if-else construct
+if(x > 3) {
+        y <- 10
+} else {
+        y <- 0
+}
+# And so is this
+y <- if(x > 3) {
+        10
+} else {
+        0
+}
+```
+The *else* clause is not necessary. Can use *if* clause by itself.
+
+## For Loops
+*for* loops take an interator variable and assign it successive values from a swquence or vector. For loops are most commonly used for iterating over the elements of an object (list, vector, etc.)
+```{r, eval=FALSE}
+for(i in 1:10) {
+  print(i)
+}
+```
+This loop takes the **i** variable in each iteration of the loop and gives it values 1, 2, 3, ..., 10, and then exits.  
+
+These three loops have the same behavior.
+```{r}
+x <- c("a", "b", "c", "d")
+# All of the following for loops are equivalent
+# The first example is in a format that is common in other languages
+for(i in 1:4){
+        print(x[i])
+}
+# The seq_along function takes a vector as the input and creates an integer sequence that is equal to the length of that vector
+for(i in seq_along(x)) {  # Generates a vector the length of variable x
+        print(x[i])
+}
+# "letter" is the index variable and takes values from the vector itself
+for(letter in x) {
+        print(letter)
+}
+# The same as the first example, but without the curly braces
+for(i in 1:4) print(x[i])
+```
+## Nested for Loops
+```{r}
+x <- matrix(1:6, 2, 3)
+# For 2-dimensional matrix, can loop over rows and then columns
+for(i in seq_len(nrow(x))) {    # Loop over the rows of length x and create an integer sequence
+      for(j in seq_len(ncol(x))) {    # Use the number of columns to create an integer sequence
+              print(x[i, j])
+      }
+}
+```
+Be careful with nesting. Nesting beyond 2-3 levels is often difficult to read/understand. Can often get around this by using functions.
+
+## while
+*while* loops begin by testing an expression. If it is true, then they execute the loop body. Once the loop body is executed, the condition is tested again, and so on.
+```{r, eval=FALSE}
+count <- 0
+while(count < 10) {
+      print(count)
+  count <- count + 1
+}
+```
+*while* loops can potentially result in infinite loops, so be careful! Often safer to use something like a *for* loop that has a hard limit on the number of times it will execute.  
+
+Sometimes there will be more than one condition in the test.
+```{r, eval=FALSE}
+z <- 5
+while(z >= 3 && z <= 10) {
+      print(z)
+  coin <- rbinom(1, 1, 0.5)
+  
+  if(coin == 1) { ## randome walk
+        z <- z + 1
+  } else {
+          z <- z - 1
+        }
+}
+```
+Conditions are always evaluated from left to right.
+
+##Repeat, Next, Break
+### repeat, break
+*repeat* initiates an infinite loop; these are not commonly used in statistical applications, but they do have their uses. The only way to exit a *repeat* loop is to call *break*.  
+
+It's better to set a hard limit on the number of iterations (e.g. for using a loop) and then report whether convergence was achieved or not.  
+
+### next, return
+*next* is used to skip an iteration of a loop
+```{r eval=FALSE}
+for(i in 1:100) {
+  if(i <= 20) {
+    # Skip the first 20 iterations
+    next
+  }
+  # Do something here
+}
+```
+*return* signals that a function should exit and return a given value.  

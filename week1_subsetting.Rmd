@@ -1,0 +1,148 @@
+---
+title: "R Programming Week 1, Subsetting Data and Vectorized Operations"
+author: "Krista DeStasio"
+date: "12/26/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c("datasets")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(datasets)
+```
+# SUBSETTING IN R
+______________________________
+## Subsetting Basics
+There are a number of operators that can be used to extract subsets of R objects.
+
+- [ always returns an object of the same class as the original; can be used to select more than one element
+- [[ is used to extract elements of a list or a data frame; it can only be used to extract a single element and the class of the returned object may not necessarily be a list or a data frame
+- $ is used to extract elements of a list or a data frame by name; semantics are similar to that of [[
+```{r}
+x <- c("a", "b", "c", "c", "d", "a")
+```
+Examples subsetting using a NUMERIC index
+```{r}
+x[1]
+x[2]
+x[1:4]
+```
+```{r}
+# Examples subsetting using a LOGICAL index
+x[x > "a"]
+(u <- x > "a")
+x[u]
+```
+## Subsetting Lists
+```{r}
+x <- list(foo = 1:4, bar = 0.6)
+x[1] # Returns a list because [ always returns the element of the same class as the original
+x[[1]] # [[ Returns just the sequence
+x$bar # Extracts the element "bar" from the list
+x[["bar"]] # The same as x$bar
+x["bar"] # Returns a list wit the element bar in it
+```
+To extract multiple elements of a list, you need to use the single bracket operator.
+```{r}
+x <- list(foo = 1:4, bar = 0.6, bax = "hello")
+x[c(1, 3)]
+```
+The [[ operator can be used with *computed* indices; $ can only be used with literal names.
+```{r}
+name <- "foo"
+x[[name]] # computed index for "foo" because that's the value of the "name" variable
+x$name # $ literally looks for an element of the list that has the name "name" associated with it
+x$foo
+```
+### Subsetting Nested Elements of a List
+The [[ can take an integer sequence.
+```{r}
+(x <- list(a = list(10, 12, 14), b = c(3.14, 2.81)))
+x[[c(1, 3)]]
+x[[1]][[3]]
+x[[c(2, 1)]]
+```
+## Subsetting a Matrix
+Matrices can be subset in the usual way
+```{r}
+(x <- matrix(1:6, 2, 3))
+x[1, 2]
+x[2, 1]
+```
+Indices can also be missing.
+```{r}
+(x <- matrix(1:6, 2, 3))
+x[1, ]
+x[, 2]
+```
+By default, when a single element of a matrix is retrieved, it is returned as a vector of length 1 rather than a 1x1 matrix. This behavior can be turned off by setting *drop* = FALSE.  
+
+When I subset one element of a matrix with [ I don't get back a matrix unless I use *drop*
+```{r}
+(x <- matrix(1:6, 2, 3))
+x[1, 2]
+x[1, 2, drop = FALSE] # drop = FALSE does not drop the dimensions
+```
+Subsetting a single column or a single row will give you a vector, not a matrix (by default).
+```{r}
+(x <- matrix(1:6, 2, 3))
+x[1, ]
+x[1, , drop = FALSE]
+```
+## Subsetting, Partial Matching
+Partial matching of names is allowed with [[ and $
+```{r}
+x <- list(aardvark = 1:5)
+x$a # Since there is only one element that starts with "a", we get the object associated with "aardvark" back
+x[["a"]] # [[ expects to get an exact match back
+x[["a", exact = FALSE]] # allows for partial matching
+```
+## Removing Missing Values
+Most data have missing values. For a vector, matrix, or data frame, you want to create a logical vector that tells you where the missing data (NAs) are.
+```{r}
+x <- c(1, 2, NA, 4, NA, 5)
+bad <- is.na(x) # Creates a logical vector to locate the missing data
+x[!bad] # Will return the opposite of "bad", giving me the good elements
+```
+What if there are multiple things and you want to take the subset with no missing values?
+```{r}
+x <- c(1, 2, NA, 4, NA, 5)
+y <- c("a", "b", NA, "d", NA, "f")
+good <- complete.cases(x, y)
+good
+x[good]
+y[good]
+```
+### Removing Missing Values From Data Frames
+```{r}
+airquality[1:6. ]
+good <- complete.cases(airquality)
+airquality[good, ][1:6, ]
+```
+# VECTORIZED OPERATIONS
+__________________________
+The idea with vectorized operations is that things can happen in parallel. Many operations in R are *vectorized* making code more efficient, concise, and easier to read.
+```{r}
+x <- 1:4; y <- 6:9
+x + y
+x > 2
+x >= 2
+y ==8
+x * y
+x / y
+```
+Can also do vectorized matrix operations.
+```{r}
+(x <- matrix(1:4, 2, 2))
+(y <- matrix(rep(10, 4), 2, 2))
+# Element-wise computations
+x * y
+x / y
+# True matrix computation
+x %*% y
+```

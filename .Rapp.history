@@ -1,0 +1,4 @@
+getwd()
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/")
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+dir()

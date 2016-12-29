@@ -1,0 +1,144 @@
+---
+title: "R Programming Week 1, Reading and Writing Data"
+author: "Krista DeStasio"
+date: "12/26/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c()
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library()
+```
+# READING AND WRITING DATA IN R
+________________________________
+## Reading Data
+Principal functions for reading data into R
+
+- **read.table**, **read.csv**, for reading tabular data 
+    + read text files that contain data in rows and columns
+    + return data frame
+- **readLines**, for reading lines of a text file
+- **source**, for reading in R code files *(inverse of dump)*
+- **dget**, for reading in R code files *(input of dput)*
+    + for dparsed R objects
+- **load**, for reading in saved workspaces
+    + for binary objects
+- **unserialize**, for reading dinglw R objects in binary form
+
+**read.table** function is one of the most commonly ysed functions for reading data. It has a few important arguments:
+
+- *file*, the name of a file or a connection
+- *header*, logical indicating if the file has a header line
+- *sep*, a string indicating how the columns are separated
+- *colClasses*, a character vector indicating the class of each column in the dataset
+- *nrows*, the number of rows in the dataset
+- *comment.char*, a character string indicating the comment character
+- *skip*, the number of lines to skip from the beginning
+- *stringAsFactors*, should character variables be coded as factors?
+
+For small and moderately sized data sets, you can usually call **read.table** without specifying any other arguments.  
+
+R will automatically
+
+- skip lines that begin with a #
+- figure out how many rows there are
+- figure out what type of variable is in each column of the table (though telling R these things directly makes R run faster and more efficiently)
+- **read.csv** is identical to read.table except that the default separator is a comma
+
+## Writing Data
+Analagous functions for writing data to files
+
+- **write.table**
+- **writeLines**
+- **dump**
+- **dput**
+- **save**
+- **serialize**
+
+## Reading Large Tables
+
+- Read the help page for **read.table** (be able to recite this in your sleep)
+- Make a rough calculation of the memory required to store your dataset. If the dataset is larger than the amount of RAM on your computer, you won't be able to successfully read it in
+- Use the *colClasses* argument
+    + Specifying this option instead of using the default can make **read.table** run much faster.
+    + Set *nrows* to help with memory usage
+    + To figure out the classes of each column, you can run:  
+    
+```{r eval=FALSE}
+initial <- read.table("datatable.txt", nrows = 100)
+classes <- sapply(initial, class)
+tabAll <- read.table("datatable.txt",  
+                      colClasses = classes) 
+```
+
+### Know thy system
+In general when using R with larger datasets, it's useful to know a few things about the system:
+
+- How much memory is available
+- What other applications are in use
+- Are there other users logged into the same system
+- What operating system
+- 32 or 64 bit OS
+
+#### Calculating memory requirements
+rows x columns x 8 bytes (if all the data are numeric, each number requires 8 bytes of memory to store)
+= total bytes
+= totalByes / $2^20$ = # MB
+= numMB / $2^10$ = # GB
+
+*You will need almost twice as much memory as calculated to read in the data*
+## Textual Data Formats
+
+- *dumping* and *dputing* are useful because the resulting textual format is editable, and in the case of corruption, potentially recoverable
+- Unlike writing out a table or csv file, *dump* and *dput* preserve the metadata
+- Textual formats can work much better with version control programs like git which can only track changes meaningfully in text files
+- Textual formats are good for storing data because if there is corruption somewhere, it can be easier to fix the problem
+- Textual formats adhere to the "Unix Philosphy"
+- BUT they tend to not be very space-efficient
+
+#### dput-ting R Objects
+Another way to pass data by taking an R object and creating some R code that can be used to reconstruct the object in R.
+
+#### Dumping R Objects
+Can be used on multiple R objects.
+
+# CONNECTIONS: INTERFACES TO THE OUTSIDE WORLD
+Data are read in ussing *connection* interfaces. Connections can be made to files (most common) or to other things.
+
+- **file** opens a connection to a file
+- **gzfile** opens a connection to a file compressed with gzip
+- **bzfile** opens a connection to a file compressed with bzip2
+- **url** opens a connection to a webpage
+
+## File Connections
+The **file** function has a few arguments
+```{r}
+str(file)
+```
+- *desctiption* is the name of the file
+- *open* is a code indicating
+      + **r** read only
+      + **w** write only
+      + **a** appending
+      + **rb**, **wb**, **ab**, reading, writiing, or appending in binary mode (Windows)
+      
+### Connections
+In general, connections are powerful tools that let you navigate files or other external objects. In practice, we often don't need to deal with the connection interfacedirectly.  
+
+#### readLines
+Can be useful to read parts of a file.  
+```{r eval=FALSE}
+readLines(textFile, 10) #reads in the first 10 lines of the file
+```
+Can be used to read in lines of a webpage.
+```{r}
+con <- url("http://www.jhsph.edu", "r") #this is the address to the John's Hopkins website
+x <- readLines(con)
+head(x)
+```

@@ -1,0 +1,211 @@
+---
+title: "R Programming Week 2, Scoping Rules"
+author: "Krista DeStasio"
+date: "12/27/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c("datasets", "ggplot2")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(datasets)
+library(ggplot2)
+```
+# SCOPING RULES
+___________________
+How does R know which value to assign to which symbol?
+```{r}
+lm <- function(x) {x * x}
+lm
+```
+How does R know the value to assign to the symbol **lm**? Why doesn't it give the value of **lm** that is in the *stats* package?  
+
+## Symbol Binding
+When R tries to bind a value to a symbol, it searches through a series of environments to find the appropriate value. When you are working on the command line and need to find retrieve the value of an R object, the order is roughly:
+
+1. Search the global environment for a symbol name matching he one requested.
+2. Search the namespaces of each package on the search list.
+
+The search list can be found by using the **search( )** function.
+```{r}
+search()
+```
+Because I define **lm( )** in the global environment, which is #1 on the search list, that is the *lm* function that will be used.
+
+- The *global environment* or the user's work space is always the first element of the search list and the *base* package is always the last
+- The order of the packages in the search list matters
+- Users can configure which packages get loaded on startup, so you cannot assume that there will be a set list of packages available
+- When a user loads a package with **library( )** the namespace of that package gets put in position 2 of the search list (by default) and everything else gets shifted down the list
+- Note that R has separate namespaces and non-functions so it's possible to have an object named *c* and a function named *c*
+
+## Scoping Rules
+- The scoping rules determine who a value is bound to a free varianle in a function.
+- Functions have 2 types of variables: (1) function arguments that are passed through the definition of the function and (2) other symbols that are found in the function that are not funcion arguments. How do you assign a value to those symbols?
+    + R uses *lexical scoping* or *static scoping*
+- Related to the scoping rules is how R uses the search list to bund a value to a symbol
+- Lexical scoping is particularly useful for simplifying statistical computations
+
+### Lexical Scoping
+Consider the following function
+```{r}
+f <- function(x, y) {
+    x^2 + y / z
+}
+```
+This function has 2 formal arguments *x* and *y*. In the body of the function there is another symbol, *z*. In this case, *z* is called a *free variable*. The scoping rules of language determine how values are assigned o free variables. Free variables are not formal arguments and are not local variables (assigned inside the function body).  
+
+Lexical scoping in R means that  
+
+*the values of free variables are searched for in the environment in which the funtion was defined.*  
+
+What is an environment?  
+
+- An *environment* is a collectiion of symbol-value pairs, i.e. x is a symbol and 3.14 might be its value
+- Every environment has a parent environment; it's possible for an environment to have multiple "children"
+- The only environment without a parent is the empty environment
+- A function + an environment = a *closure* or *function closure*
+
+If you are in a function and encounter a free variable in the function, what happens?  
+
+1. First the function searches for the function in the environment in which it was created
+2. If the value of a symbol is not found in the environment in which the function was defined, then the search is continued in the *parent environment*
+3. The search continues down the sequence of parent environments until we hit the *top-level environment*; this is usually the global environment (workspace) ot the namespace of a package
+4. After the top-level environment, the search continues down the search list until we hit the *empty environment*. If a value for a given symbol cannot be found once the empty environment is arrived at, then an error is thrown  
+
+Why does this matter?  
+
+- Tyoically, a function is defined in the global environment, so that the values of free variables are just found in the user's workspace
+- This behavior is logical for most people
+- However, in R you can have functions defined *inside other functions*
+- In this case, the environment in which a funcion is defined is the body of another function
+```{r}
+make.power <- function(n) {
+    pow <- function(x) {
+        x^n
+    }
+    pow
+}
+```
+This function returns another function as its value
+```{r}
+cube <- make.power(3)
+square <- make.power(2)
+cube(3)
+square(3)
+```
+### Exploring a Function Closure
+What's in a function's environment?
+```{r}
+ls(environment(cube))
+get("n", environment(cube))
+ls(environment(square))
+get("n", environment(square))
+```
+### Lexical vs. Dynamic Scoping
+```{r}
+y <- 10
+f <- function(x) {
+    y <- 2
+    y^2 + g(x)
+}
+
+g <- function(x) {
+    x*y
+}
+```
+What is the value of
+```{r}
+f(3)
+```
+- With lexical scoping the value of y in the function g is looked up in the environment in which the function was defined, in this case the global environment; so the value of y is 10
+- With dynamic scoping, the value of y is looked up in the environment from which the function was *called* (sometimes referred to as the *calling environment*)
+    + In R the calling environment is known as the *parent frame*
+    * So the value of y would be 2    
+
+When a function is *defined* in the global environment and subsequently *called* from the global environment, then the defining environment and the calling environment are the same. This can give the appearance of dynamic scoping.  
+
+### Other Languages That Support Lexical Scoping
+- Scheme
+- Perl
+- Python
+- Common Lisp (all languages converge to Lisp)
+
+### Consequences of Lexical Scoping
+- In R, all objects must be held in memory
+- All functions must carry a pointer to their respective defining environments, which could be anywhere
+- In S-PLUS, free variables are always locked up in the global workspace, so everythhing can be stored on the disk because the *defining environment* of all the functions was the same
+
+## Application: Optimization
+Why is any of this information useful>
+
+- Optimization routines in R like *optimi*, *nlm*, and *optimize* require you to pass a function whose argument is a vector of parameters (e.g. log-likelihood)
+- However, an object function might depend on a host of other things besides its parameters (like data)
+- When writing software that does optimization, it may be desireable to allow the user to hold certain parameters fixed
+
+### Maximizing a Normal Likelihood
+Write a "constructor" function that constructs the "objective function". The objective function would have all of the data and other things it depends on in its defining environment. That way you don't have to specify those things every time you call the funcion. 
+```{r}
+# Example of a constructor function that creates a negative log likelihood
+make.NegLogLik <- function(data, fixed=c(FALSE,FALSE)) {
+    params <- fixed
+    function(p) {
+        params[!fixed] <- p
+        mu <- params[1]
+        sigma <- params[2]
+        a <- -0.5*length(data)*log(2*pi*sigma^2)
+        b <- -0.5*sum((data-mu)^2) / (sigma^2)
+        -(a + b)
+    }
+}
+```
+*Note: Optimization functions in R **minimize** functions, so you need to use the negative log-likelihood*
+
+Simulate some random variables with mean 1 and sd 2. 
+```{r}
+set.seed(1); normals <- rnorm(100, 1, 2)
+nLL <- make.NegLogLik(normals)
+nLL
+ls(environment(nLL))
+```
+When the function is printed out, the body of the function looks like code for the normal distribution, but there is an environment tag (the enclosing environment for the function). Normally, when you define a function in the global environment, you don't need a special environment tag. But, when you define a function inside of another function, there has to be a pointed to the defining environment so R can remember the values of the free parameters.  
+Looking at the body of the **nLL** function, we see that pretty much evrything is a local variable or comes from the parameter value "*p*". However, the "*data*" variable is a free variable - it comes from the negLogLik function.  
+
+### Estimating Parameters
+```{r}
+optim(c(mu = 0, sigma = 1), nLL)$par
+```
+Fixing $\sigma$ = 2
+```{r}
+nLL <- make.NegLogLik(normals, c(FALSE, 2)) # False for mu, 2 for sigma
+optimize(nLL,c(-1, 3))$minimum # opimize will minimize the function of a single variable only
+```
+Fixing $\mu$ = 1
+```{r}
+nLL <- make.NegLogLik(normals, c(1, FALSE))
+optimize(nLL, c(1e-6, 10))$minimum
+```
+### Ploting the Likelihood
+```{r}
+# Plot the negative log likelihood as a value of sigma
+nLL <- make.NegLogLik(normals, c(1, FALSE))
+x <- seq(1.7, 1.9, len = 100)
+y <- sapply(x, nLL)
+plot(x, exp(-(y - min(y))), type="l")
+# Plot the negative log likelihood as a value of mu
+nLL <- make.NegLogLik(normals, c(FALSE, 2))
+x <- seq(0.5, 1.5, len = 100)
+y <- sapply(x, nLL)
+plot(x, exp(-(y - min(y))), type = "l")
+```
+
+## Lexical Scoping Summary
+
+- Objective functions can be "built" that contain all of the necessary data for evaluating the function
+- No need to carry around long argument lists - useful for interactive and exploratory work
+- Code can be simplified and cleaned up
+- Reference: **Robert Gentleman and Ross Ihaka (2000). "Lexical Scope and Statistical Computing," *JCGS*, 9, 491-508.**

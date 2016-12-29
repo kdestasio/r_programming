@@ -1,0 +1,91 @@
+---
+title: "R Programming Week 2, Functions"
+author: "Krista DeStasio"
+date: "12/26/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c("datasets")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(datasets)
+```
+# FUNCTIONS
+Functions are created using the **function( )** directive and are stored as R objects. In particular, they are R objects of class "function".
+```{r, eval=FALSE}
+f <- function(<arguments>) {
+    ## Do something interesting
+}
+```
+Functions in R are "first class objects", which means that they can be treated much like any other R object.  
+Importantly,
+
+- Functions can be passed as arguments to other functions
+- Functions can be nested such that you can define a function within another function. *The return value of a function is the last expression in the function body to be evaluated*
+
+Functions have *named arguments* which potentially have *default values*
+
+- The *formal arguments* are the arguments included in the function definition
+- The **formals** function returns a list of all formal arguments of a function
+- Not every function call in R makes use of all the formal arguments
+- Function arguments can be missing or might have default values
+
+## Argument Matching
+R functions arguments can be matched positionally or by name; so the following calls to *sd* are all equivalent
+```{r}
+str(sd)
+```
+```{r, eval=FALSE}
+mydata <- rnorm(100)
+sd(mydata)
+sd(x = mydata)
+sd(x = mydata, na.rm = FALSE)
+sd(na.rm = FALSE, x = mydata)
+sd(na.rm = FALSE, mydata)
+```
+Even though it's possible, it is not recommended to mess with the order of the arguments too much since it can lead to confusion.  
+
+Positional matching and matching by name can be mixed. When the argument is matched by name, it is "taken out" of the argument list and the remaining unnamed arguments are matched in the order that they are listed in the definition.  
+
+Function arguments can be partially matched, which is useful for interactive work. 
+
+1. Check for an exact match for a named argument
+2. Check fr a partial match
+3. Check for a positional match
+
+## Lazy Evaluation
+
+Arguments to functions are evaluated lazily, so they are evaluated only as needed.  
+
+## The "..." Argument
+
+The ... argument indicates a variable number of arguments that are useually passed on to other functions.  
+
+... is often used when extending another function and you don't want to copy the entire argument list of the original function.
+```{r}
+# myplot will change the default "type" argument while leaving the other defaullt plot arguements. The ... from "myplot" is passed down to the "plot" function
+myplot <- function(x, y, type = "l", ...) {
+plot(x, y, type = type, ...)
+}
+```
+Generic functions use ... so that extra arguments can be passed to methods.
+```{r}
+str(mean)
+```
+The ... argument is also necessary when the number of arguments passed to a function cannot be known in advance.
+```{r}
+args(paste)
+args(cat)
+```
+### Arguments Coming After the "..." Argument
+Any arguments that come after the ... on the argument list must be names explicitly and cannot be partially matched.
+```{r}
+args(paste)
+paste("a", "b", sep = ";")
+paste("a", "b", se = ";") # The partial matching is ignored because it comes after the "..." argument
+```
