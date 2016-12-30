@@ -1,0 +1,43 @@
+---
+title: "R Programming Week 3, Loop Functions"
+author: "Krista DeStasio"
+date: "12/29/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c()
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+```
+# LOOP FUNCTIONS
+____________________
+Idea behaind the loop function is to execute a loop over an object or set of objects in a way that does a lot of work in a small amount of space.
+
+## Looping on the Command Line
+Writing *for* and *while* loops is useful when programming, but not particularly easy when working interactively on the command line. There are some functions that implement looping to make life easier.
+
+- **lapply**: Loop over a list and evaluate a function on each element
+- **sapply**: Same as lapply , but try to simplify the result
+- **apply**: Apply a function over the margins of an array
+- **tapply**: Apply a function over a subset of a vector (short for *table apply*)
+- **mapply**: Multivariate version of **lapply**
+
+An auxiliary function, **split**, is also useful; particularly in conjunction with **lapply**.  
+
+### lapply 
+**lapply** takes 3 arguments: (1) a list *x*; (2) a function (or the name of a function) *FUN*; (3) other arguments via its "..." argument. If *x* is not a list, it will be coerced into a list using **as.list**.
+```{r}
+lapply
+```
+The actual looping is done internally in C code.  
+
+**lapply** always returns a list, regardless of the class of the input.  
+```{r}
+x <- list(a = 1:5, b = rnorm(10))
+lapply(x, mean)
+```
