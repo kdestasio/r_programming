@@ -209,3 +209,4 @@ plot(x, exp(-(y - min(y))), type = "l")
 - No need to carry around long argument lists - useful for interactive and exploratory work
 - Code can be simplified and cleaned up
 - Reference: **Robert Gentleman and Ross Ihaka (2000). "Lexical Scope and Statistical Computing," *JCGS*, 9, 491-508.**
+    + *R. Gentleman and R. Ihaka are the creators of R*
