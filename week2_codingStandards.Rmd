@@ -1,0 +1,93 @@
+---
+title: "R Programming Week 2, Coding Standards"
+author: "Krista DeStasio"
+date: "12/29/2016"
+output: html_document
+---
+# Notes from R Programming, week 1
+*Note: much of the following text is directly from the course slides, available here: [www.coursera.org/learn/r-programming](www.coursera.org/learn/r-programming)*
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
+rm(list = ls())
+list.of.packages <- c("datasets", "ggplot2")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+library(datasets)
+library(ggplot2)
+```
+# CODING STANDARDS
+___________________
+
+1. Always use text files / text editor
+    + Can be read by pretty much any program
+    + The editor in Rstudio is a text editor
+2. Indent your code
+3. Limit the width of your code (80 columns?)
+    + Improves readability
+    + Fixing line length (80 columns) prevents lots of nesting and very long functions
+   + Suggested: indents of 4 spaces at minimum
+Suggested 
+4. Limit the length of individual functions
+    + A function should do one thing
+    + Helpful for readability and debugging
+    
+# DATES AND TIMES IN R
+_______________________
+R has a special way o represent dates and times
+
+- Dates are represented by the **Date** class
+- Times are represented by the **POSIXct** or the **POSIXlt** class
+- Dates are stored internally as the number of days since 1970-01-01
+- Times are stored internally as the number of seconds since 1970-01-01
+
+## Dates in R
+Dates are represented by the *Date* class and can be coerced from a character string using the **as.Date( )** function
+```{r}
+x <- as.Date("1970-01-01")
+x # Will print out a character string
+unclass(x) # Unclass the object to get a number
+unclass(as.Date("1970-01-02"))
+```
+Dates are stored as *objects* of the *Date class*.
+
+## Times in R
+POSIX is a family of computing standards for how to represent dates and times
+
+- in the POSIXct class, times are stored as a very large integer under the hood; it is a useful class when you want to sore something like a data frame
+- POSIXlt is a list underneath and it stores a bunch of other useful information like the day of the week, day of the year, month, day of the month
+
+There are a number of generic functions that work on dates and times
+
+- **weekdays**: give the day of the week
+- **months**: give the month name
+- **quarters**: give the quarter number (Q1, Q2, Q3, Q4)
+
+Times can be coerced from a character string using the **as.POSIXlt** or **as.Posixct** functions
+```{r}
+x <- Sys.time()
+x
+p <- as.POSIXlt(x)
+names(unclass(p))
+p$sec
+```
+There is also the **strptime** function in case your dates are written in a different format
+```{r}
+datestring <- c("January 10, 2012 10:40", "December 9, 2011 9:10")
+x <- strptime(datestring, "%B %d, %Y %H:%M ")
+x
+class(x)
+```
+To check the formatting strinfs: **?strptimes** for details
+
+## Operations on Dates and Times
+
+You can use + and - on dates and times. You can also do comparisons (i.e. ==, <=)
+```{r}
+x <- as.Date("2012-01-01")
+y <- strptime("9 Jan 2011 11:34:21", "%d %b %Y %H:%M:%S")
+x-y
+x <- as.POSIXlt(x) # Both need to be the same type of object
+x-y
+```
+Even keeps track of leap years, leap seconds, daylight savings, and time zones.
