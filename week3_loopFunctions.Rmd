@@ -30,7 +30,7 @@ Writing *for* and *while* loops is useful when programming, but not particularly
 An auxiliary function, **split**, is also useful; particularly in conjunction with **lapply**.  
 
 ### lapply 
-**lapply** takes 3 arguments: (1) a list *x*; (2) a function (or the name of a function) *FUN*; (3) other arguments via its "..." argument. If *x* is not a list, it will be coerced into a list using **as.list**.
+**lapply** takes 3 arguments: (1) a list **x**; (2) a function (or the name of a function) **FUN**; (3) other arguments via its "..." argument. If **x** is not a list, it will be coerced into a list using **as.list**.
 ```{r}
 lapply
 ```
@@ -40,4 +40,81 @@ The actual looping is done internally in C code.
 ```{r}
 x <- list(a = 1:5, b = rnorm(10))
 lapply(x, mean)
+x <- list(a = 1:4, b = rnorm(10), c = rnorm(20, 1), d = rnorm(100, 5))
+lapply(x, mean)
+## Another way to call lapply
+x <- 1:4
+lapply(x, runif)
+## Can adjust the defaults of runif 
+lapply(x, runif, min = 0, max = 10)
+```
+lapply and friends make havy use of *anonymous* functions.
+```{r}
+x <- list(a = matrix(1:4, 2, 2), b = matrix(1:6, 3, 2))
+x
+```
+An anonymous function for extracting the first column of each matrix.
+```{r}
+## There is no function that laready extracts the first column of the matrix, but we can write a function quickly. The function only exists within the context of lapply, once it's finished, the function goes away.
+lapply(x, function(elt) elt[,1])
+```
+### sapply
+
+**sapply** will try to simplify the result of **lapply** if possible.
+
+- If the result is a list where every element is length 1, then a vector is returned.
+- If the result is a list where every element is a vector of the same length (>1), a matrix is returned.
+- If it can't figure things out, a list is returned.
+```{r}
+x <- list(a = 1:4, b = rnorm(10), c = rnorm(20, 1), d = rnorm(100, 5))
+lapply(x, mean)
+sapply(x, mean)
+mean(x) ## Can't call mean on the list itself
+```
+### apply
+**apply** is used to evaluate a function (often an anonymous one) over the margins of an array.
+
+- Most often used to apply a function to the rows of a column or a matrix.
+- It can be used with general arrays, e.g. taking the average of an array matrix.
+- It is not really faster than writing a loop, but it works in one line!
+    + Particularly useful on the command line.
+```{r}
+str(apply)
+```
+
+- x is an array (An array is a vector that has dimensions attached to it; a matrix is a 2-dimensional vector, for example)
+- **MARGIN** is an integer vector indicating which margins should be "retained".
+- **FUN** is a function to be applied.
+- "..." is for other arguments to be passed to **FUN**
+```{r}
+x <- matrix(rnorm(200), 20, 10)
+## Calculate the mean of each column of the matrix
+apply(x, 2, mean)  ## The matrix has 20 rows and 10 columns (dimension 1 has 20 rows and dimension 2 has 10 columns), when you apply the function "mean" over the matrix, you want to keep the 2nd dimension (the number of columns) and collapse the 1st dimension (rows). You're taking the mean across all the the values in each column and eliminating the rows from the array.
+## Can also take the sum of all the rows
+apply(x, 1, sum)  ## Preserve the rows, collapse the columns
+```
+#### col/row Sums and Means
+For sums and means of matrix dimensions, we have some shortcuts.
+
+- **rowSums** = *apply(x, 1, sum)*
+- **rowMeans** = *apply(x, 1, mean)*
+- **colSums** = *apply(x, 2, sum)*
+- **colMeans** = *apply(x, 2, mean)*
+
+The shortcut functions are *much* faster, but you won't notice unless you are using a large matrix.
+
+#### Other Ways to apply
+Quantiles of the rows of a matrix.
+```{r}
+x <- matrix(rnorm(200), 20, 10)
+## Calculate the 25th and 75th percentile
+apply(x, 1, quantile, probs = c(0.25, 0.75))
+```
+
+#### apply
+Average matrix in an array
+```{r}
+a <- array(rnorm(2 * 2 * 10), c(2, 2, 10))  ## A bunch of 2x2 matrices
+apply(a, c(1, 2), mean)  ## Keep the 1st and 2nd dimension, collapse the 3rd dimension
+rowMeans(a, dims = 2)
 ```
