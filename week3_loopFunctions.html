@@ -154,7 +154,7 @@ $(document).ready(function () {
 ##         X &lt;- as.list(X)
 ##     .Internal(lapply(X, FUN))
 ## }
-## &lt;bytecode: 0x7fa1e60a3800&gt;
+## &lt;bytecode: 0x7fe804003200&gt;
 ## &lt;environment: namespace:base&gt;</code></pre>
 <p>The actual looping is done internally in C code.</p>
 <p><strong>lapply</strong> always returns a list, regardless of the class of the input.</p>
@@ -164,47 +164,47 @@ lapply(x, mean)</code></pre>
 ## [1] 3
 ## 
 ## $b
-## [1] -0.7843066</code></pre>
+## [1] -0.5172685</code></pre>
 <pre class="r"><code>x &lt;- list(a = 1:4, b = rnorm(10), c = rnorm(20, 1), d = rnorm(100, 5))
 lapply(x, mean)</code></pre>
 <pre><code>## $a
 ## [1] 2.5
 ## 
 ## $b
-## [1] 0.3175936
+## [1] -0.0872661
 ## 
 ## $c
-## [1] 1.237718
+## [1] 1.291782
 ## 
 ## $d
-## [1] 5.057813</code></pre>
+## [1] 4.99586</code></pre>
 <pre class="r"><code>## Another way to call lapply
 x &lt;- 1:4
 lapply(x, runif)</code></pre>
 <pre><code>## [[1]]
-## [1] 0.918403
+## [1] 0.5171433
 ## 
 ## [[2]]
-## [1] 0.5250391 0.8950733
+## [1] 0.3529134 0.5463981
 ## 
 ## [[3]]
-## [1] 0.24728016 0.05744396 0.88768363
+## [1] 0.7067112 0.9732967 0.8604332
 ## 
 ## [[4]]
-## [1] 0.4112662 0.2461026 0.6680285 0.3828152</code></pre>
+## [1] 0.3886271 0.6658153 0.6055295 0.5710382</code></pre>
 <pre class="r"><code>## Can adjust the defaults of runif 
 lapply(x, runif, min = 0, max = 10)</code></pre>
 <pre><code>## [[1]]
-## [1] 0.6109036
+## [1] 8.50605
 ## 
 ## [[2]]
-## [1] 7.430391 2.878117
+## [1] 7.660936 3.041610
 ## 
 ## [[3]]
-## [1] 3.2221461 0.6446394 9.4984893
+## [1] 1.181680 9.335319 8.593881
 ## 
 ## [[4]]
-## [1] 9.371540 7.597312 6.694007 4.323026</code></pre>
+## [1] 7.288531 1.885605 2.724695 8.225094</code></pre>
 <p>lapply and friends make havy use of <em>anonymous</em> functions.</p>
 <pre class="r"><code>x &lt;- list(a = matrix(1:4, 2, 2), b = matrix(1:6, 3, 2))
 x</code></pre>
@@ -241,16 +241,16 @@ lapply(x, mean)</code></pre>
 ## [1] 2.5
 ## 
 ## $b
-## [1] -0.2755443
+## [1] 0.02172519
 ## 
 ## $c
-## [1] 0.9734062
+## [1] 0.8882939
 ## 
 ## $d
-## [1] 5.070361</code></pre>
+## [1] 4.819644</code></pre>
 <pre class="r"><code>sapply(x, mean)</code></pre>
 <pre><code>##          a          b          c          d 
-##  2.5000000 -0.2755443  0.9734062  5.0703612</code></pre>
+## 2.50000000 0.02172519 0.88829385 4.81964369</code></pre>
 <pre class="r"><code>mean(x) ## Can't call mean on the list itself</code></pre>
 <pre><code>## Warning in mean.default(x): argument is not numeric or logical: returning
 ## NA</code></pre>
@@ -278,16 +278,16 @@ lapply(x, mean)</code></pre>
 <pre class="r"><code>x &lt;- matrix(rnorm(200), 20, 10)
 ## Calculate the mean of each column of the matrix
 apply(x, 2, mean)  ## The matrix has 20 rows and 10 columns (dimension 1 has 20 rows and dimension 2 has 10 columns), when you apply the function &quot;mean&quot; over the matrix, you want to keep the 2nd dimension (the number of columns) and collapse the 1st dimension (rows). You're taking the mean across all the the values in each column and eliminating the rows from the array.</code></pre>
-<pre><code>##  [1] -0.165313881  0.433398534 -0.004053012  0.144798025 -0.142269997
-##  [6]  0.510858517  0.206091550 -0.023880127 -0.004997594 -0.189502307</code></pre>
+<pre><code>##  [1]  0.18232798 -0.01745219  0.06581959  0.15545223 -0.14869591
+##  [6] -0.07393041 -0.12610319  0.04036114  0.22931358  0.29443400</code></pre>
 <pre class="r"><code>## Can also take the sum of all the rows
 apply(x, 1, sum)  ## Preserve the rows, collapse the columns</code></pre>
-<pre><code>##  [1]  1.22965971  2.69648107  0.41681670  2.03429225 -2.26337444
-##  [6]  0.12406555 -1.00243927  4.07566624  0.92771111  0.16238853
-## [11]  3.88703159 -0.62758105 -3.42135218 -3.06477917  1.66553330
-## [16] -0.05767507  3.92044548 -1.81546912  4.02742381  2.38774911</code></pre>
+<pre><code>##  [1]   3.3080483  -3.8574287   2.3530536  -0.8023110 -11.0802948
+##  [6]  -5.6802514  -1.7770947   3.7068127   5.2890217   0.5498677
+## [11]   2.7707854   5.0790828   0.2016985   5.0723433  -1.8297885
+## [16]  -2.0340794   0.9514855  -3.7618548   5.2879688   8.2834716</code></pre>
 <div id="colrow-sums-and-means" class="section level4">
-<h4>col/row sums and means</h4>
+<h4>col/row Sums and Means</h4>
 <p>For sums and means of matrix dimensions, we have some shortcuts.</p>
 <ul>
 <li><strong>rowSums</strong> = <em>apply(x, 1, sum)</em></li>
@@ -296,6 +296,244 @@ apply(x, 1, sum)  ## Preserve the rows, collapse the columns</code></pre>
 <li><strong>colMeans</strong> = <em>apply(x, 2, mean)</em></li>
 </ul>
 <p>The shortcut functions are <em>much</em> faster, but you won’t notice unless you are using a large matrix.</p>
+</div>
+<div id="other-ways-to-apply" class="section level4">
+<h4>Other Ways to apply</h4>
+<p>Quantiles of the rows of a matrix.</p>
+<pre class="r"><code>x &lt;- matrix(rnorm(200), 20, 10)
+## Calculate the 25th and 75th percentile
+apply(x, 1, quantile, probs = c(0.25, 0.75))</code></pre>
+<pre><code>##           [,1]       [,2]       [,3]       [,4]       [,5]       [,6]
+## 25% -0.3587157 -0.7928046 -0.8723839 -1.1180137 -0.8929791 -0.8099833
+## 75%  0.9330743  0.9659344  0.7594650  0.4445381  0.5987928  0.9860091
+##           [,7]        [,8]       [,9]       [,10]      [,11]      [,12]
+## 25% -0.6692707 -0.05326631 -0.6605031 -0.02068285 -0.9902811 -0.1554793
+## 75%  1.1045568  0.82181816  0.4859340  1.26910491  1.2157377  0.9628222
+##          [,13]      [,14]        [,15]     [,16]       [,17]      [,18]
+## 25% -0.8715385 -0.4051488 -0.009576413 -1.263016 0.005350423 -0.5190251
+## 75%  0.3667845  0.7527129  0.924787130  0.111305 0.796386726  0.3541662
+##           [,19]        [,20]
+## 25% -0.87555167 -0.007158984
+## 75% -0.09089908  0.556251946</code></pre>
+</div>
+<div id="apply-1" class="section level4">
+<h4>apply</h4>
+<p>Average matrix in an array</p>
+<pre class="r"><code>a &lt;- array(rnorm(2 * 2 * 10), c(2, 2, 10))  ## A bunch of 2x2 matrices
+apply(a, c(1, 2), mean)  ## Keep the 1st and 2nd dimension, collapse the 3rd dimension</code></pre>
+<pre><code>##             [,1]       [,2]
+## [1,]  0.30361934 -0.3066750
+## [2,] -0.01444391  0.5481791</code></pre>
+<pre class="r"><code>rowMeans(a, dims = 2)</code></pre>
+<pre><code>##             [,1]       [,2]
+## [1,]  0.30361934 -0.3066750
+## [2,] -0.01444391  0.5481791</code></pre>
+</div>
+</div>
+<div id="mapply" class="section level3">
+<h3>mapply</h3>
+<p>A multivariate apply that applies a function in parallel over a set of arguments.</p>
+<pre class="r"><code>str(apply)</code></pre>
+<pre><code>## function (X, MARGIN, FUN, ...)</code></pre>
+<ul>
+<li><strong>FUN</strong> is a function to apply</li>
+<li><strong>“…”</strong> contains arguments to apply over</li>
+<li><strong>MoreArgs</strong> is a list of other arguments to FUN</li>
+<li><strong>SIMPLIFY</strong> indicates whether the result should be simplified</li>
+</ul>
+<p>The following is tedious to type</p>
+<pre class="r"><code>list(rep(1, 4), rep(2,3), rep(3, 2), rep(4, 1))</code></pre>
+<pre><code>## [[1]]
+## [1] 1 1 1 1
+## 
+## [[2]]
+## [1] 2 2 2
+## 
+## [[3]]
+## [1] 3 3
+## 
+## [[4]]
+## [1] 4</code></pre>
+<p>Instead, we can do</p>
+<pre class="r"><code>mapply(rep, 1:4, 4:1) ## First arg gives the numbers, Second arg gives the number of repetitions for each</code></pre>
+<pre><code>## [[1]]
+## [1] 1 1 1 1
+## 
+## [[2]]
+## [1] 2 2 2
+## 
+## [[3]]
+## [1] 3 3
+## 
+## [[4]]
+## [1] 4</code></pre>
+<div id="vectorizing-a-function" class="section level4">
+<h4>Vectorizing a Function</h4>
+<pre class="r"><code>## THE FUNCTION
+noise &lt;- function(n, mean, sd) {  ## Function has 3 arguments
+    rnorm(n, mean, sd)
+}
+noise(5, 1, 2) ## 5 random variables with mean=1 and sd=2</code></pre>
+<pre><code>## [1] 1.7720771 1.7198312 1.5261753 3.3787376 0.6745348</code></pre>
+<pre class="r"><code>noise(1:5, 1:5, 2) ## Doesn't work correctly if passed a vector of arguments</code></pre>
+<pre><code>## [1] 1.531629 4.449489 3.913372 3.691486 4.677400</code></pre>
+<pre class="r"><code>## THE VECTORIZATION
+mapply(noise, 1:5, 1:5, 2) </code></pre>
+<pre><code>## [[1]]
+## [1] 1.778713
+## 
+## [[2]]
+## [1] 3.103580 1.194116
+## 
+## [[3]]
+## [1]  5.200654 -1.110068  2.401256
+## 
+## [[4]]
+## [1] 0.6619875 3.5496460 4.7645293 5.9948077
+## 
+## [[5]]
+## [1] 7.744710 3.510057 5.057876 5.134239 6.034479</code></pre>
+<p>Which is the same as</p>
+<pre class="r"><code>list(noise(1, 1, 2), noise(2, 2, 2),
+     noise(3, 3, 2), noise(4, 4, 2),
+     noise(5, 5, 2))</code></pre>
+<pre><code>## [[1]]
+## [1] -0.8578589
+## 
+## [[2]]
+## [1]  5.68791712 -0.08562741
+## 
+## [[3]]
+## [1] 4.0831064 2.3679288 0.7855874
+## 
+## [[4]]
+## [1] -1.709989  7.202608  4.572258  4.001775
+## 
+## [[5]]
+## [1] 5.989582 3.960638 9.587116 4.601801 5.694593</code></pre>
+</div>
+</div>
+<div id="tapply" class="section level3">
+<h3>tapply</h3>
+<p><strong>tapply</strong> is used to apply a function over <em>subsets</em> of a vector.</p>
+<pre class="r"><code>str(tapply)</code></pre>
+<pre><code>## function (X, INDEX, FUN = NULL, ..., simplify = TRUE)</code></pre>
+<ul>
+<li><strong>x</strong> is a vector</li>
+<li><strong>INDEX</strong> is a factor or list of factors (otherwise they are coerced into factors)</li>
+<li><strong>FUN</strong> is a function to be applied</li>
+<li><strong>“…”</strong> contains other arguments to be passed to FUN</li>
+<li><strong>simplify</strong>, should we simplify the result?</li>
+</ul>
+<pre class="r"><code>x &lt;- c(rnorm(10), runif(10), rnorm(10, 1)) 
+f &lt;- gl(3, 10) ## 3 levels, each repeated 10 times
+f</code></pre>
+<pre><code>##  [1] 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3
+## Levels: 1 2 3</code></pre>
+<pre class="r"><code>tapply(x, f, mean) ## Take the mean of each group in x</code></pre>
+<pre><code>##          1          2          3 
+## 0.05118583 0.65854413 1.06924078</code></pre>
+<p>Take group means without simplification</p>
+<pre class="r"><code>tapply(x, f, mean, simplify = FALSE) ## when simplify = FALSE, we get back a list with 3 elements. In each element of the list is the mean of that subgroup</code></pre>
+<pre><code>## $`1`
+## [1] 0.05118583
+## 
+## $`2`
+## [1] 0.6585441
+## 
+## $`3`
+## [1] 1.069241</code></pre>
+<p>Find group ranges.</p>
+<pre class="r"><code>tapply(x, f, range) ## Gives min and max of each subgroup in the list</code></pre>
+<pre><code>## $`1`
+## [1] -0.7244927  1.0576517
+## 
+## $`2`
+## [1] 0.2256491 0.9052402
+## 
+## $`3`
+## [1] -0.3782079  2.5385583</code></pre>
+</div>
+<div id="split" class="section level3">
+<h3>split</h3>
+<p><strong>split</strong> takes a vector or other objects and splits it into groups by a factor or a list of factors. Like <strong>tapply</strong>, but without applying the summary statistis.</p>
+<pre class="r"><code>str(split)</code></pre>
+<pre><code>## function (x, f, drop = FALSE, ...)</code></pre>
+<ul>
+<li><strong>x</strong> is a vector (or list) or data frame</li>
+<li><strong>f</strong> is a factor (or coerced to one) or a list of factors</li>
+<li><strong>drop</strong> indicates whether empty factors levels should be dropped</li>
+</ul>
+<pre class="r"><code>x &lt;- c(rnorm(10), runif(10), rnorm(10, 1))
+f &lt;- gl(3, 10)
+split(x, f) ## Returns list with 3 elements</code></pre>
+<pre><code>## $`1`
+##  [1] -0.7571680  1.3988324  0.3384462  0.5136180 -0.3827471 -0.5274805
+##  [7]  0.8475966 -1.2444444  0.5857915 -2.1927876
+## 
+## $`2`
+##  [1] 0.5998797 0.4655289 0.7002026 0.4586750 0.5222505 0.4627603 0.3459964
+##  [8] 0.1539104 0.8942001 0.9417790
+## 
+## $`3`
+##  [1]  1.6706358  1.2472968  1.1372143 -1.7732605  1.1102868 -1.2071706
+##  [7] -0.4677987  0.2404581  3.1111717  0.9862481</code></pre>
+<p>It is common to <strong>split</strong>, followed by an <strong>lapply</strong>.</p>
+<pre class="r"><code>lapply(split(x, f), mean)</code></pre>
+<pre><code>## $`1`
+## [1] -0.1420343
+## 
+## $`2`
+## [1] 0.5545183
+## 
+## $`3`
+## [1] 0.6055082</code></pre>
+<div id="splitting-a-data-frame" class="section level4">
+<h4>Splitting a Data Frame</h4>
+<pre class="r"><code>head(airquality)</code></pre>
+<pre><code>##   Ozone Solar.R Wind Temp Month Day
+## 1    41     190  7.4   67     5   1
+## 2    36     118  8.0   72     5   2
+## 3    12     149 12.6   74     5   3
+## 4    18     313 11.5   62     5   4
+## 5    NA      NA 14.3   56     5   5
+## 6    28      NA 14.9   66     5   6</code></pre>
+<p>To calculate the mean of <em>Ozone</em>, <em>Solar radiation</em>, and <em>Wind</em> wihin each month.</p>
+<pre class="r"><code>## Split the data frame into month pieces (can convert month into a factor variable)
+s &lt;- split(airquality, airquality$Month)
+## Caclulate the column means on those new variables
+lapply(s, function(x) colMeans(x[, c(&quot;Ozone&quot;, &quot;Solar.R&quot;, &quot;Wind&quot;)])) ## apply an anonymous function</code></pre>
+<pre><code>## $`5`
+##    Ozone  Solar.R     Wind 
+##       NA       NA 11.62258 
+## 
+## $`6`
+##     Ozone   Solar.R      Wind 
+##        NA 190.16667  10.26667 
+## 
+## $`7`
+##      Ozone    Solar.R       Wind 
+##         NA 216.483871   8.941935 
+## 
+## $`8`
+##    Ozone  Solar.R     Wind 
+##       NA       NA 8.793548 
+## 
+## $`9`
+##    Ozone  Solar.R     Wind 
+##       NA 167.4333  10.1800</code></pre>
+<p>There are NAs because there are missing values in that column.<br />
+Can also call <strong>sapply</strong>, which instead of returning a list will simplify the result. Because each vector of the returned list is the same length, <strong>sapply</strong> can put them into a matrix.</p>
+<pre class="r"><code>sapply(s, function(x) colMeans(x[, c(&quot;Ozone&quot;, &quot;Solar.R&quot;, &quot;Wind&quot;)]))</code></pre>
+<pre><code>##                5         6          7        8        9
+## Ozone         NA        NA         NA       NA       NA
+## Solar.R       NA 190.16667 216.483871       NA 167.4333
+## Wind    11.62258  10.26667   8.941935 8.793548  10.1800</code></pre>
+<pre class="r"><code>sapply(s, function(x) colMeans(x[, c(&quot;Ozone&quot;, &quot;Solar.R&quot;, &quot;Wind&quot;)], na.rm = TRUE))</code></pre>
+<pre><code>##                 5         6          7          8         9
+## Ozone    23.61538  29.44444  59.115385  59.961538  31.44828
+## Solar.R 181.29630 190.16667 216.483871 171.857143 167.43333
+## Wind     11.62258  10.26667   8.941935   8.793548  10.18000</code></pre>
 </div>
 </div>
 </div>
