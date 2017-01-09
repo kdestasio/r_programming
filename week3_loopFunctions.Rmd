@@ -10,9 +10,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 setwd("~/Dropbox (PfeiBer Lab)/kdestasio/R_projects/coursera/r_programming/")
 rm(list = ls())
-list.of.packages <- c()
+list.of.packages <- c("datasets")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
+library(datasets)
 ```
 # LOOP FUNCTIONS
 ____________________
@@ -117,4 +118,122 @@ Average matrix in an array
 a <- array(rnorm(2 * 2 * 10), c(2, 2, 10))  ## A bunch of 2x2 matrices
 apply(a, c(1, 2), mean)  ## Keep the 1st and 2nd dimension, collapse the 3rd dimension
 rowMeans(a, dims = 2)
+```
+
+### mapply
+A multivariate apply that applies a function in parallel over a set of arguments.
+```{r}
+str(apply)
+```
+
+- **FUN** is a function to apply
+- **"..."** contains arguments to apply over
+- **MoreArgs** is a list of other arguments to FUN
+- **SIMPLIFY** indicates whether the result should be simplified
+
+The following is tedious to type
+```{r}
+list(rep(1, 4), rep(2,3), rep(3, 2), rep(4, 1))
+```
+Instead, we can do
+```{r}
+mapply(rep, 1:4, 4:1) ## First arg gives the numbers, Second arg gives the number of repetitions for each
+```
+#### Vectorizing a Function
+```{r}
+## THE FUNCTION
+noise <- function(n, mean, sd) {  ## Function has 3 arguments
+    rnorm(n, mean, sd)
+}
+noise(5, 1, 2) ## 5 random variables with mean=1 and sd=2
+noise(1:5, 1:5, 2) ## Doesn't work correctly if passed a vector of arguments
+
+## THE VECTORIZATION
+mapply(noise, 1:5, 1:5, 2) 
+```
+Which is the same as
+```{r}
+list(noise(1, 1, 2), noise(2, 2, 2),
+     noise(3, 3, 2), noise(4, 4, 2),
+     noise(5, 5, 2))
+```
+
+### tapply
+**tapply** is used to apply a function over *subsets* of a vector.
+```{r}
+str(tapply)
+```
+- **x** is a vector
+- **INDEX** is a factor or list of factors (otherwise they are coerced into factors)
+- **FUN** is a function to be applied
+- **"..."** contains other arguments to be passed to FUN
+- **simplify**, should we simplify the result?
+```{r}
+x <- c(rnorm(10), runif(10), rnorm(10, 1)) 
+f <- gl(3, 10) ## 3 levels, each repeated 10 times
+f
+tapply(x, f, mean) ## Take the mean of each group in x
+```
+Take group means without simplification
+```{r}
+tapply(x, f, mean, simplify = FALSE) ## when simplify = FALSE, we get back a list with 3 elements. In each element of the list is the mean of that subgroup
+```
+Find group ranges.
+```{r}
+tapply(x, f, range) ## Gives min and max of each subgroup in the list
+```
+
+### split
+**split** takes a vector or other objects and splits it into groups by a factor or a list of factors. Like **tapply**, but without applying the summary statistis.
+```{r}
+str(split)
+```
+
+- **x** is a vector (or list) or data frame
+- **f** is a factor (or coerced to one) or a list of factors
+- **drop** indicates whether empty factors levels should be dropped
+```{r}
+x <- c(rnorm(10), runif(10), rnorm(10, 1))
+f <- gl(3, 10)
+split(x, f) ## Returns list with 3 elements
+```
+It is common to **split**, followed by an **lapply**.
+```{r}
+lapply(split(x, f), mean)
+```
+
+#### Splitting a Data Frame
+```{r}
+head(airquality)
+```
+To calculate the mean of *Ozone*, *Solar radiation*, and *Wind* wihin each month.
+```{r}
+## Split the data frame into month pieces (can convert month into a factor variable)
+s <- split(airquality, airquality$Month)
+## Caclulate the column means on those new variables
+lapply(s, function(x) colMeans(x[, c("Ozone", "Solar.R", "Wind")])) ## apply an anonymous function
+```
+There are NAs because there are missing values in that column.  
+Can also call **sapply**, which instead of returning a list will simplify the result. Because each vector of the returned list is the same length, **sapply** can put them into a matrix.
+```{r}
+sapply(s, function(x) colMeans(x[, c("Ozone", "Solar.R", "Wind")]))
+sapply(s, function(x) colMeans(x[, c("Ozone", "Solar.R", "Wind")], na.rm = TRUE))
+```
+#### Splitting on More than One Level
+You might have more than one factor and want to look at the combinations of the levels within the factor.
+```{r}
+x <- rnorm(10)
+f1 <- gl(2, 5) ## a factor with 2 levels, repeated 5 times
+f2 <- gl(5, 2) ## a factor with 5 levels, repeated 2 times
+f1
+f2
+interaction(f1, f2) ## Gives the (10) total combinations of the levels
+```
+Interactions can create empty levels. 
+```{r}
+str(split(x, list(f1, f2))) ## Split the numeric vector x according to the two different factors. Will automatically call the interaction function and create that interaction factors.  
+```
+Empty levels can be dropped.
+```{r}
+str(split(x, list(f1, f2), drop = TRUE))
 ```
